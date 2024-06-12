@@ -12,7 +12,25 @@ const HomePage = () => {
   const user = useAuthSession();
 
   const handleLogin = async () => {
-    // Implement the logic to authenticate the user
+    try {
+      const response = await fetch('/api/auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to login');
+      }
+
+      const data = await response.json();
+
+      dispatch(setToken(data.token));
+    } catch (error) {
+      console.error('Failed to login:', error);
+    }
   };
 
   return (
@@ -28,6 +46,7 @@ const HomePage = () => {
             <input
               type="text"
               value={username}
+              required minLength={4} maxLength={24}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Username"
               className="w-full px-4 py-2 mt-4 border rounded-md"
@@ -35,6 +54,7 @@ const HomePage = () => {
             <input
               type="password"
               value={password}
+              required minLength={4} maxLength={24}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
               className="w-full px-4 py-2 mt-4 border rounded-md"
